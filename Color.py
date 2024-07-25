@@ -1,0 +1,7 @@
+RED = "\033[31m"
+YELLOW = "\033[33m"
+GREEN = "\033[32m"
+LIGHT_BLUE = "\033[38;5;153m"
+ORANGE = "\033[38;5;214m"
+MAGENTA = "\033[35m"
+RESET = "\033[0m"
