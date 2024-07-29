@@ -1,7 +1,7 @@
 import random
 import time
-import datetime
 import Color
+import StatsDB
 
 class SimpleGame():
     def __init__(self, operationSign):
@@ -76,6 +76,7 @@ class SimpleGame():
         print(f"{Color.ORANGE}Enter -1 to stop this game, 'p' to pause it.{Color.RESET}")
         flag = False # permite evitar que se lance una nueva operacion si el input es invalido (si se da el except)
         repeat = True # asegura que la resta no de negativa 
+        firstOperation = True # asegura que inputs incorrectos o invalidos no reseteen el timer
         while True:
             if flag == False:
                 repeat = True
@@ -93,7 +94,8 @@ class SimpleGame():
                 while result == False:
                     pauseStart = 0
                     pauseEnd = 0
-                    startTime = time.time() # timer que mide el tiempo de respuesta
+                    if firstOperation: # reiniciar el timer solamente si es la primera operacion (evitar reiniciar timer en incorrectas)
+                        startTime = time.time() # timer que mide el tiempo de respuesta
                     number = -1
                     while number != "p": # bucle que tiene en cuenta una posible pausa
                         number = input(f"{numbers[0]} {self.operationSign} {numbers[1]}: ")
@@ -111,16 +113,21 @@ class SimpleGame():
                                     print(f"{Color.YELLOW}GAME CONTINUES{Color.RESET}")
                                     number = -1 # permite que se vuelva a efectuar el input de numero o pausar nuevamente
                                     
-                    endTime = time.time()
-                    timer = (endTime - startTime) - (pauseEnd - pauseStart)
                     if number >= 0: # ALERTA: no permite resta negativa
                         result = self.operation(number, numbers[0], numbers[1])
                         if result:
+                            endTime = time.time()
+                            timer = (endTime - startTime) - (pauseEnd - pauseStart)
                             print(round(timer, 3))
                             self.times[self.gameMode] += timer # añade el tiempo solamente si el resultado fue correcto
-                    else: 
+                            firstOperation = True # resetear para la nueva operacion
+                        else: # si el resultado es incorrecto
+                            firstOperation = False
+                    else:
+                        firstOperation = True # resetear antes de terminar juego
                         return # termina el juego si se ingresa un numero negativo
             except ValueError:
+                firstOperation = False
                 print(f"{Color.RED}Enter a valid option.{Color.RESET}")
                 flag = True
 
@@ -137,31 +144,31 @@ class SimpleGame():
         match gameMode: # settear el valor self.gameMode permite acceder al dict "times" que guarda los tiempos de cada modo
             case "*Easy":
                 self.gameMode = "multiplyEasy"
-                self.name = "Muliply Easy."
+                self.name = "Muliply Easy"
             case "*Medium":
                 self.gameMode = "multiplyMedium"
-                self.name = "Muliply Medium."
+                self.name = "Muliply Medium"
             case "*Hard":
                 self.gameMode = "multiplyHard"
-                self.name = "Muliply Hard."
+                self.name = "Muliply Hard"
             case "+Easy":
                 self.gameMode = "addEasy"
-                self.name = "Add Easy."
+                self.name = "Add Easy"
             case "+Medium":
                 self.gameMode = "addMedium"
-                self.name = "Add Medium."
+                self.name = "Add Medium"
             case "+Hard":
                 self.gameMode = "addHard"
-                self.name = "Add Hard."
+                self.name = "Add Hard"
             case "-Easy":
                 self.gameMode = "substractEasy"
-                self.name = "Substract Easy."
+                self.name = "Substract Easy"
             case "-Medium":
                 self.gameMode = "substractMedium"
-                self.name = "Substract Medium."
+                self.name = "Substract Medium"
             case "-Hard":
                 self.gameMode = "substractHard"
-                self.name = "Substract Hard."
+                self.name = "Substract Hard"
                 
     def startGame(self): # maneja el flujo
         self.setDificulty()
@@ -194,8 +201,8 @@ class SimpleGame():
             statsList[3] = newRate
             # mostrar stats
             print(f"{Color.YELLOW}Game Mode: {self.name}\n{Color.GREEN}Correct: {statsList[0]}\n{Color.RED}Incorrect: {statsList[1]}{Color.RESET}\nAverage Time: {statsList[2]}s\nRate: {statsList[3]}%")
-            with open("Stats.txt", "a") as file:
-                file.write(f"\t{datetime.datetime.now().strftime('%c.')}\nGame Mode: {self.name}\nCorrect: {statsList[0]}\nIncorrect: {statsList[1]}\nAverage Time: {statsList[2]}s\nRate: {statsList[3]}%\n") 
+            # Actualizar base de datos
+            StatsDB.statsDB.updateDB(self.name, statsList[0], statsList[1], statsList[2], statsList[3])
                     
         except ZeroDivisionError:
             print("No records yet!")

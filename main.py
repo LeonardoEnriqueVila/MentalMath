@@ -1,6 +1,7 @@
 import SimpleGame
 import CashGame
 import Color
+import StatsDB
 
 class Menu():
     def __init__(self):
@@ -41,8 +42,18 @@ class Menu():
                         SimpleGame.substractGame.startGame()
                     elif gameOption == 4:
                         CashGame.cashGame.startGame()
-            case 2:
-                print("Show Stats Placeholder") # quizas no se quede aca esto
+            case 2: # muestra los ultimos stats del juego deseado (provisorio)
+                flag = True
+                while flag:
+                    name = input("Enter Game Name: ").split()
+                    for i in range(len(name)):
+                        name[i] = name[i].capitalize()
+                    name = " ".join(name)
+                    if name in ["Multiply Easy", "Multiply Medium", "Multiply Hard", "Add Easy", "Add Medium", "Add Hard", "Substract Easy", "Substract Medium", "Substract Hard", "Cash Game"]:
+                        print(StatsDB.statsDB.getData(name)) # raw data, proximamente a procesar y presentar de forma adecuada
+                        flag = False
+                    else: 
+                        print(f"Game names include: 'Multiply' (Easy, Medium, Hard), 'Add' (Easy, Medium, Hard), 'Substract' (Easy, Medium, Hard) and 'Cash Game'")
             case 3:
                 quit()
         return True # permite que se siga ejecutando el bucle principal

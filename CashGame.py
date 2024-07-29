@@ -1,18 +1,19 @@
 import random
 import time
-import datetime
 import Color
+import StatsDB
 
 class CashGame():
     def __init__(self):
         self.Stats = [0, 0, 0, 0] # correct, incorrect, average, rate, first
         self.times = 0
         self.first = True
-        self.name = "Cash Game."
+        self.name = "Cash Game"
 
     def play(self):
         print(f"{Color.ORANGE}Enter -1 to stop this game, 'p' to pause it.{Color.RESET}")
         flag = False # permite evitar que se lance una nueva operacion si el input es invalido (si se da el except)
+        firstOperation = True # asegura que inputs incorrectos o invalidos no reseteen el timer
         while True:
             if flag == False:
                 total, pays = self.setOperands()
@@ -23,7 +24,8 @@ class CashGame():
                 while result == False:
                     pauseStart = 0
                     pauseEnd = 0
-                    startTime = time.time() # timer que mide el tiempo de respuesta
+                    if firstOperation: # reiniciar el timer solamente si es la primera operacion (evitar reiniciar timer en incorrectas)
+                        startTime = time.time() # timer que mide el tiempo de respuesta
                     number = -1
                     while number != "p": # bucle que tiene en cuenta una posible pausa
                         number = input(f"Total: {total}, pays: {pays}: ")
@@ -41,16 +43,21 @@ class CashGame():
                                     print(f"{Color.YELLOW}GAME CONTINUES{Color.RESET}")
                                     number = -1 # permite que se vuelva a efectuar el input de numero o pausar nuevamente
                                     
-                    endTime = time.time()
-                    timer = (endTime - startTime) - (pauseEnd - pauseStart)
                     if number >= 0: # ALERTA: no permite resta negativa
                         result = self.operation(number, pays - total)
                         if result:
+                            endTime = time.time()
+                            timer = (endTime - startTime) - (pauseEnd - pauseStart)
                             print(round(timer, 3))
                             self.times += timer # añade el tiempo solamente si el resultado fue correcto
+                            firstOperation = True # resetear para la nueva operacion
+                        else: # si el resultado es incorrecto
+                            firstOperation = False
                     else: 
+                        firstOperation = True # resetear antes de terminar juego
                         return # termina el juego si se ingresa un numero negativo
             except ValueError:
+                firstOperation = False
                 print(f"{Color.RED}Enter a valid option.{Color.RESET}")
                 flag = True
 
@@ -102,8 +109,7 @@ class CashGame():
             self.Stats[3] = newRate
             # mostrar stats
             print(f"{Color.YELLOW}Game Mode: {self.name}\n{Color.GREEN}Correct: {self.Stats[0]}\n{Color.RED}Incorrect: {self.Stats[1]}{Color.RESET}\nAverage Time: {self.Stats[2]}s\nRate: {self.Stats[3]}%")
-            with open("Stats.txt", "a") as file:
-                file.write(f"\t{datetime.datetime.now().strftime('%c.')}\nGame Mode: {self.name}\nCorrect: {self.Stats[0]}\nIncorrect: {self.Stats[1]}\nAverage Time: {self.Stats[2]}s\nRate: {self.Stats[3]}%\n")
+            StatsDB.statsDB.updateDB(self.name, self.Stats[0], self.Stats[1], self.Stats[2], self.Stats[3])
         except ZeroDivisionError:
             print("No records yet!")
 

@@ -1,6 +1,6 @@
 # Mental Math
 
-Mental Math is a console-based program designed to enhance your math skills through various interactive games. The program collects and saves statistics from your games, including the average response time and the ratio of correct and incorrect answers.
+Mental Math is a console-based program designed to enhance your math skills through various interactive games. The program collects and saves statistics from your games in a data base, including the average response time and the ratio of correct and incorrect answers.
 
 ## Features
 
@@ -8,7 +8,7 @@ Mental Math is a console-based program designed to enhance your math skills thro
 - **Difficulty Levels:** Select the difficulty level for each game to match your proficiency.
 - **Statistics Tracking:** The program tracks and saves your performance statistics.
 - **Console Interface:** A user-friendly console interface with ANSI colors to make the experience more engaging.
-- **Modules Used:** Utilizes the `random`, `datetime`, and `time` modules.
+- **Modules Used:** Utilizes the `random`, `datetime`, `time` and `sqlite3` modules.
 
 ## Development Status
 
