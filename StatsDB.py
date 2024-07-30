@@ -8,9 +8,9 @@ class StatsDB:
         self.initializeDB() # inicializar db
 
     def initializeDB(self):
-        names = ["Multiply Easy", "Multiply Medium", "Multiply Hard", "Add Easy", "Add Medium", "Add Hard", "Substract Easy", "Substract Medium", "Substract Hard", "Cash Game"]
+        names = ["Multiply Easy", "Multiply Medium", "Multiply Hard", "Add Easy", "Add Medium", "Add Hard", "Substract Easy", "Substract Medium", "Substract Hard", "Cash Game", "Divide Easy", "Divide Medium", "Divide Hard"]
         # stats contiene los ultimos datos actualizados, StatsHistory contiene un registro de las actualizaciones
-        self.cursor.executescript('''         
+        self.cursor.executescript('''                                         
             CREATE TABLE IF NOT EXISTS Stats (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT UNIQUE,
@@ -39,24 +39,26 @@ class StatsDB:
     def updateDB(self, name, correct, incorrect, averageTime, rate): # actualizar al hacer click en el checkbox
         # Obtener el id del juego
         self.cursor.execute('SELECT id FROM Stats WHERE name = ? ', (name, ))
-        name_id = self.cursor.fetchone()[0]
-        # agregar fila a historial de updates de stats
-        self.cursor.execute('''
-            INSERT INTO StatsHistory (name_id, correct, incorrect, averageTime, rate, date)
-            VALUES (?, ?, ?, ?, ?, ?)''',
-            (name_id, correct, incorrect, averageTime, rate, datetime.datetime.now()))
+        name_id = self.cursor.fetchone()
+
         # actualizar stats actuales
         self.cursor.execute('''
             UPDATE Stats
             SET correct = ?, incorrect = ?, averageTime = ?, rate = ?
             WHERE name = ?''', 
         (correct, incorrect, averageTime, rate, name))
+
+        # agregar fila a historial de updates de stats
+        self.cursor.execute('''
+            INSERT INTO StatsHistory (name_id, correct, incorrect, averageTime, rate, date)
+            VALUES (?, ?, ?, ?, ?, ?)''',
+            (name_id[0], correct, incorrect, averageTime, rate, datetime.datetime.now()))
         self.conn.commit()
 
     def getData(self, name): # obtiene los datos de los stats
         self.cursor.execute('''SELECT name, correct, incorrect, averageTime, rate FROM Stats
                                WHERE name = ?''', (name, )) 
-        return self.cursor.fetchone() 
+        return self.cursor.fetchall()[0]
 
 # recordar que la DB tiene que ser cerrada, probablemente eso se haga en main al elegir quit   
 statsDB = StatsDB()

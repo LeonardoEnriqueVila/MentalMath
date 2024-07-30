@@ -23,6 +23,9 @@ class SimpleGame():
             "substractEasy": 0,
             "substractMedium": 0,
             "substractHard": 0,
+            "divideEasy": 0,
+            "divideMedium": 0,
+            "dividetHard": 0,
         }
         self.gameMode = ""
         self.name = ""
@@ -85,6 +88,9 @@ class SimpleGame():
                     if self.operationSign == "-":
                         if numbers[1] < numbers[0]:
                             repeat = False
+                    elif self.operationSign == "/":
+                        if (numbers[1] < numbers[0]) and (numbers[0] % numbers[1] == 0): 
+                            repeat = False
                     else:
                         repeat = False
             else:
@@ -123,7 +129,7 @@ class SimpleGame():
                             firstOperation = True # resetear para la nueva operacion
                         else: # si el resultado es incorrecto
                             firstOperation = False
-                    else:
+                    else: 
                         firstOperation = True # resetear antes de terminar juego
                         return # termina el juego si se ingresa un numero negativo
             except ValueError:
@@ -144,13 +150,13 @@ class SimpleGame():
         match gameMode: # settear el valor self.gameMode permite acceder al dict "times" que guarda los tiempos de cada modo
             case "*Easy":
                 self.gameMode = "multiplyEasy"
-                self.name = "Muliply Easy"
+                self.name = "Multiply Easy"
             case "*Medium":
                 self.gameMode = "multiplyMedium"
-                self.name = "Muliply Medium"
+                self.name = "Multiply Medium"
             case "*Hard":
                 self.gameMode = "multiplyHard"
-                self.name = "Muliply Hard"
+                self.name = "Multiply Hard"
             case "+Easy":
                 self.gameMode = "addEasy"
                 self.name = "Add Easy"
@@ -169,6 +175,15 @@ class SimpleGame():
             case "-Hard":
                 self.gameMode = "substractHard"
                 self.name = "Substract Hard"
+            case "/Easy":
+                self.gameMode = "divideEasy"
+                self.name = "Divide Easy"
+            case "/Medium":
+                self.gameMode = "divideMedium"
+                self.name = "Divide Medium"
+            case "/Hard":
+                self.gameMode = "divideHard"
+                self.name = "Divide Hard"
                 
     def startGame(self): # maneja el flujo
         self.setDificulty()
@@ -210,3 +225,4 @@ class SimpleGame():
 multiplyGame = SimpleGame("*")
 addGame = SimpleGame("+")
 substractGame = SimpleGame("-")
+divideGame = SimpleGame("/")
