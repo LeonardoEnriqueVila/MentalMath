@@ -7,8 +7,11 @@ class CashGame():
     def __init__(self):
         self.Stats = [0, 0, 0, 0] # correct, incorrect, average, rate, first
         self.times = 0
-        self.first = True
         self.name = "Cash Game"
+        self.initializeStatsFromDB()
+    
+    def initializeStatsFromDB(self):
+        name, self.Stats[0], self.Stats[1], self.Stats[2], self.Stats[3], self.times = StatsDB.statsDB.getData("Cash Game")
 
     def play(self):
         print(f"{Color.ORANGE}Enter -1 to stop this game, 'p' to pause it.{Color.RESET}")
@@ -100,16 +103,14 @@ class CashGame():
             newRate = round(self.Stats[0] * 100 / (self.Stats[0] + self.Stats[1]), 3) # porcentaje de correcto
             # informar si se superaron los stats anteriores
             if newAverage < self.Stats[2]:
-                print(f"{Color.GREEN}New Average Time Record! -> {newAverage}s ({(self.Stats[2] - newAverage):.3f}s less!){Color.RESET}")
-            if newRate > self.Stats[3] and self.first == False:
-                print(f"{Color.GREEN}New Rate Record! -> {newRate}% (Up {newRate - self.Stats[3]:.3f}%!){Color.RESET}")
-            if self.first:
-                self.first = False
+                print(f"{Color.GREEN}Better Average Time Than Last Record! -> {newAverage}s ({(self.Stats[2] - newAverage):.3f}s less!){Color.RESET}")
+            if newRate > self.Stats[3] and self.Stats[3] != 0:
+                print(f"{Color.GREEN}Better Rate Than Last Record! -> {newRate}% (Up {newRate - self.Stats[3]:.3f}%!){Color.RESET}")
             self.Stats[2] = newAverage
             self.Stats[3] = newRate
             # mostrar stats
             print(f"{Color.YELLOW}Game Mode: {self.name}\n{Color.GREEN}Correct: {self.Stats[0]}\n{Color.RED}Incorrect: {self.Stats[1]}{Color.RESET}\nAverage Time: {self.Stats[2]}s\nRate: {self.Stats[3]}%")
-            StatsDB.statsDB.updateDB(self.name, self.Stats[0], self.Stats[1], self.Stats[2], self.Stats[3])
+            StatsDB.statsDB.updateDB(self.name, self.Stats[0], self.Stats[1], self.Stats[2], self.Stats[3], self.times)
         except ZeroDivisionError:
             print("No records yet!")
 

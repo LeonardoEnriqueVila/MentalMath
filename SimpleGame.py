@@ -6,30 +6,48 @@ import StatsDB
 class SimpleGame():
     def __init__(self, operationSign):
         # stats del juego
-        self.first = True
         self.easyStats = [0, 0, 0, 0] # correct, incorrect, average, rate
         self.mediumStats = [0, 0, 0, 0]
         self.hardStats = [0, 0, 0, 0]
         self.operationSign = operationSign # determina el operador matematico del juego
         self.difficulty = ""
         # quizas se podria mostrar stats generales y de la partida actual por separado
-        self.times = {
-            "multiplyEasy": 0,
-            "multiplyMedium": 0,
-            "multiplyHard": 0,
-            "addEasy": 0,
-            "addMedium": 0,
-            "addHard": 0,
-            "substractEasy": 0,
-            "substractMedium": 0,
-            "substractHard": 0,
-            "divideEasy": 0,
-            "divideMedium": 0,
-            "dividetHard": 0,
-        }
+        self.times = {}
         self.gameMode = ""
         self.name = ""
-
+        self.initializeStatsFromDB()
+    
+    def initializeStatsFromDB(self):
+        match self.operationSign:
+            case "*":
+                name, self.easyStats[0], self.easyStats[1], self.easyStats[2], self.easyStats[3], times = StatsDB.statsDB.getData("Multiply Easy")
+                self.times["multiplyEasy"] = times
+                name, self.mediumStats[0], self.mediumStats[1], self.mediumStats[2], self.mediumStats[3], times =StatsDB.statsDB.getData("Multiply Medium")
+                self.times["multiplyMedium"] = times
+                name, self.hardStats[0], self.hardStats[1], self.hardStats[2], self.hardStats[3], times =StatsDB.statsDB.getData("Multiply Hard")
+                self.times["multiplyHard"] = times
+            case "/":
+                name, self.easyStats[0], self.easyStats[1], self.easyStats[2], self.easyStats[3], times = StatsDB.statsDB.getData("Divide Easy")
+                self.times["divideEasy"] = times
+                name, self.mediumStats[0], self.mediumStats[1], self.mediumStats[2], self.mediumStats[3], times =StatsDB.statsDB.getData("Divide Medium")
+                self.times["divideMedium"] = times
+                name, self.hardStats[0], self.hardStats[1], self.hardStats[2], self.hardStats[3], times =StatsDB.statsDB.getData("Divide Hard")
+                self.times["divideHard"] = times
+            case "+":
+                name, self.easyStats[0], self.easyStats[1], self.easyStats[2], self.easyStats[3], times = StatsDB.statsDB.getData("Add Easy")
+                self.times["addEasy"] = times
+                name, self.mediumStats[0], self.mediumStats[1], self.mediumStats[2], self.mediumStats[3], times =StatsDB.statsDB.getData("Add Medium")
+                self.times["addMedium"] = times
+                name, self.hardStats[0], self.hardStats[1], self.hardStats[2], self.hardStats[3], times =StatsDB.statsDB.getData("Add Hard")
+                self.times["addHard"] = times
+            case "-":
+                name, self.easyStats[0], self.easyStats[1], self.easyStats[2], self.easyStats[3], times = StatsDB.statsDB.getData("Substract Easy")
+                self.times["substractEasy"] = times
+                name, self.mediumStats[0], self.mediumStats[1], self.mediumStats[2], self.mediumStats[3], times =StatsDB.statsDB.getData("Substract Medium")
+                self.times["substractMedium"] = times
+                name, self.hardStats[0], self.hardStats[1], self.hardStats[2], self.hardStats[3], times =StatsDB.statsDB.getData("Substract Hard")
+                self.times["substractHard"] = times
+                
     def operation(self, inputNumber, number1, number2):
         flag = False
         match self.operationSign:
@@ -205,19 +223,17 @@ class SimpleGame():
         try:
             newAverage = round(self.times[self.gameMode] / statsList[0], 3)
             newRate = round(statsList[0] * 100 / (statsList[0] + statsList[1]), 3) # porcentaje de correcto
-            # informar si se superaron los stats anteriores
+            # informar si se superaró el stat anterior
             if newAverage < statsList[2]:
-                print(f"{Color.GREEN}New Average Time Record! -> {newAverage}s ({(statsList[2] - newAverage):.3f}s less!){Color.RESET}")
-            if newRate > statsList[3] and self.first == False:
-                print(f"{Color.GREEN}New Rate Record! -> {newRate}% (Up {newRate - statsList[3]:.3f}%!){Color.RESET}")
-            if self.first:
-                self.first = False
+                print(f"{Color.GREEN}Better Average Time Than Last Record! -> {newAverage}s ({(statsList[2] - newAverage):.3f}s less!){Color.RESET}")
+            if newRate > statsList[3] and statsList[3] != 0:
+                print(f"{Color.GREEN}Better Rate Than Last Record! -> {newRate}% (Up {newRate - statsList[3]:.3f}%!){Color.RESET}")
             statsList[2] = newAverage
             statsList[3] = newRate
             # mostrar stats
             print(f"{Color.YELLOW}Game Mode: {self.name}\n{Color.GREEN}Correct: {statsList[0]}\n{Color.RED}Incorrect: {statsList[1]}{Color.RESET}\nAverage Time: {statsList[2]}s\nRate: {statsList[3]}%")
             # Actualizar base de datos
-            StatsDB.statsDB.updateDB(self.name, statsList[0], statsList[1], statsList[2], statsList[3])
+            StatsDB.statsDB.updateDB(self.name, statsList[0], statsList[1], statsList[2], statsList[3], self.times[self.gameMode])
                     
         except ZeroDivisionError:
             print("No records yet!")

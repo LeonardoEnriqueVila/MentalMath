@@ -16,6 +16,7 @@ class StatsDB:
             name TEXT UNIQUE,
             correct INTEGER,
             incorrect INTEGER,
+            times INTEGER,
             averageTime REAL,
             rate REAL);
                             
@@ -31,12 +32,12 @@ class StatsDB:
 
         for name in names:
             self.cursor.execute('''               
-                INSERT OR IGNORE INTO Stats (name, correct, incorrect, averageTime, rate) VALUES (?, ?, ?, ?, ?)''',              
-                (name, 0, 0, 0, 0))
+                INSERT OR IGNORE INTO Stats (name, correct, incorrect, averageTime, rate, times) VALUES (?, ?, ?, ?, ?, ?)''',              
+                (name, 0, 0, 0, 0, 0))
 
         self.conn.commit()
     
-    def updateDB(self, name, correct, incorrect, averageTime, rate): # actualizar al hacer click en el checkbox
+    def updateDB(self, name, correct, incorrect, averageTime, rate, times): # actualizar al hacer click en el checkbox
         # Obtener el id del juego
         self.cursor.execute('SELECT id FROM Stats WHERE name = ? ', (name, ))
         name_id = self.cursor.fetchone()
@@ -44,9 +45,9 @@ class StatsDB:
         # actualizar stats actuales
         self.cursor.execute('''
             UPDATE Stats
-            SET correct = ?, incorrect = ?, averageTime = ?, rate = ?
+            SET correct = ?, incorrect = ?, averageTime = ?, rate = ?, times = ?
             WHERE name = ?''', 
-        (correct, incorrect, averageTime, rate, name))
+        (correct, incorrect, averageTime, rate, times, name))
 
         # agregar fila a historial de updates de stats
         self.cursor.execute('''
@@ -56,7 +57,7 @@ class StatsDB:
         self.conn.commit()
 
     def getData(self, name): # obtiene los datos de los stats
-        self.cursor.execute('''SELECT name, correct, incorrect, averageTime, rate FROM Stats
+        self.cursor.execute('''SELECT name, correct, incorrect, averageTime, rate, times FROM Stats
                                WHERE name = ?''', (name, )) 
         return self.cursor.fetchall()[0]
 

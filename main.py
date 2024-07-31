@@ -52,7 +52,7 @@ class Menu():
                         name[i] = name[i].capitalize()
                     name = " ".join(name)
                     if name in ["Multiply Easy", "Multiply Medium", "Multiply Hard", "Add Easy", "Add Medium", "Add Hard", "Substract Easy", "Substract Medium", "Substract Hard", "Cash Game", "Divide Easy", "Divide Medium", "Divide Hard"]:
-                        name, correct, incorrect, averageTime, rate = StatsDB.statsDB.getData(name) # raw data, proximamente a procesar y presentar de forma adecuada
+                        name, correct, incorrect, averageTime, rate, times = StatsDB.statsDB.getData(name) # raw data, proximamente a procesar y presentar de forma adecuada
                         print(f"{Color.YELLOW}{name} Stats\n{Color.GREEN}Correct: {correct}\n{Color.RED}Incorrect: {incorrect}{Color.RESET}\nAverage Time: {averageTime}s\nRate: {rate}%")
                         flag = False
                     else: 
